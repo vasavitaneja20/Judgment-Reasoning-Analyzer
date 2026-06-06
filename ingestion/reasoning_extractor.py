@@ -1,6 +1,7 @@
 # reasoning_extractor.py
 import json
 import os
+import re
 import time
 from pathlib import Path
 from dotenv import load_dotenv
@@ -9,11 +10,11 @@ import google.generativeai as genai
 load_dotenv()
 
 # ── Paths ──────────────────────────────────────────────
-INGESTION_DIR      = Path(__file__).parent
-BASE_DIR           = INGESTION_DIR.parent
-CACHE_DIR          = BASE_DIR / "cache"
+INGESTION_DIR       = Path(__file__).parent
+BASE_DIR            = INGESTION_DIR.parent
+CACHE_DIR           = BASE_DIR / "cache"
 STRUCTURED_JUDGMENT = INGESTION_DIR / "structured_judgment.json"
-REASONING_OUT      = INGESTION_DIR / "reasoning.json"
+REASONING_OUT       = INGESTION_DIR / "reasoning.json"
 
 CACHE_DIR.mkdir(exist_ok=True)
 cache_path = CACHE_DIR / "reasoning_extractor_cache.json"
@@ -65,6 +66,11 @@ Format:
 """
 
 # ── Helpers ────────────────────────────────────────────
+def _clean_response_text(text: str) -> str:
+    cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.MULTILINE).strip()
+    cleaned = re.sub(r"```json\s*", "", cleaned, flags=re.IGNORECASE)
+    return re.sub(r"```", "", cleaned).strip()
+
 def _call_model_with_backoff(prompt_text, max_retries=5):
     delay = 1
     for attempt in range(1, max_retries + 1):
@@ -88,7 +94,16 @@ def main():
             print(f"Gemini error: {e}")
             return
 
-    print(result)
+    cleaned = _clean_response_text(result)
+
+    try:
+        parsed = json.loads(cleaned)
+        with open(REASONING_OUT, "w", encoding="utf-8") as f:
+            json.dump(parsed, f, indent=4, ensure_ascii=False)
+        print(f"Saved → {REASONING_OUT}")
+    except json.JSONDecodeError:
+        print("Warning: could not parse Gemini response as JSON")
+        print(result)
 
 if __name__ == "__main__":
     main()
