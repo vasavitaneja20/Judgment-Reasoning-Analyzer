@@ -1,0 +1,22 @@
+# Virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Generated artifacts
+data/embeddings.pkl
+data/judgment_analysis.json
+
+# Cache
+cache/
+
+# Environment variables
+.env
+
+# Judgment text (regenerated each run)
+ingestion/judgment_text.txt
+
+# Dev artifacts
+cached_response.json
