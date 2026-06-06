@@ -89,5 +89,28 @@ Bash
 python -m retrieval.rag_query_engine
 
 
-Credits
+⚖️ Advantages & Design Benefits
+Context-Preserving Granularity: By splitting the document into structural sections (Facts, Submissions, Analysis, Conclusion) and then further into paragraph-level chunks, the pipeline avoids the "lost in the middle" phenomenon common in long-context LLM applications.
+
+Domain-Specific Entity Extraction: Rather than relying on generic chunking, Stage 4 isolates distinct legal concepts (precedents, citations, and reasoning). This creates rich, multi-dimensional metadata that significantly boosts downstream RAG retrieval accuracy.
+
+Modular, Decoupled Architecture: The system cleanly separates heavy, one-time computation (Unit 1: Data Ingestion & Embedding Construction) from real-time execution (Unit 2: Query Engine). This makes it highly scalable and easy to maintain or swap components (e.g., changing the PDF parser or the LLM provider).
+
+Token Efficiency: Querying a targeted paragraph vector database is drastically cheaper and faster than feeding a raw 94-page legal document into an LLM for every single user question.
+
+🛑 Technical Challenges & Mitigation Strategies
+Structural Rigidity & Layout Variance: Legal judgments vary wildly across different jurisdictions and judges. Relying on strict keyword markers (like ANALYSIS) can cause the script to fail if a document uses alternative headings like COURT'S REASONING.
+
+Mitigation: Future iterations will replace strict regex matching with a flexible, LLM-assisted semantic layout parser.
+
+Noise and Boilerplate Handling: In long PDFs, page headers, footers, page numbers, and court watermarks often get baked right into the middle of sentences during raw text extraction, corrupting embedding quality.
+
+Mitigation: Implemented data-cleaning regex patterns during the paragraph-splitting stage to filter out repetitive layout noise.
+
+Sequential Processing Bottlenecks: Running multiple deep-learning-based entity extractors sequentially in Stage 4 increases the total pipeline execution time on massive documents.
+
+Mitigation: The stage is designed with isolated functions, paving the way for transition into a concurrent pipeline using Python's asyncio or concurrent.futures.
+
+
+**Credits**
 Vasavi Taneja
