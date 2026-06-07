@@ -64,22 +64,31 @@ TEXT:
 """
 
     prompt = f"""
-You are a legal reasoning assistant.
+You are a legal reasoning assistant analyzing a Supreme Court judgment.
 
-Answer ONLY using the evidence provided.
+Your task is to answer the question below using ONLY the evidence paragraphs provided.
+Do not use any prior knowledge. If the evidence does not contain a clear answer, say so in the answer field.
 
 QUESTION:
 {question}
 
-EVIDENCE:
+EVIDENCE PARAGRAPHS:
 {context}
 
-Return valid JSON only.
+Rules:
+- Base your answer strictly on the evidence provided
+- Cite the paragraph IDs that directly support your answer
+- Be precise and use legal language where appropriate
+- If the answer cannot be determined from the evidence, set answer to "Insufficient evidence to answer this question."
+
+Return valid JSON only. No markdown, no explanation outside the JSON.
 
 Format:
 {{
     "answer": "",
-    "supporting_paragraph_ids": []
+    "confidence": "high | medium | low",
+    "supporting_paragraph_ids": [],
+    "reasoning": ""
 }}
 """
 

@@ -36,9 +36,7 @@ conclusion  = judgment["conclusion"]
 
 # ── Prompt ─────────────────────────────────────────────
 prompt = f"""
-You are an expert legal analyst.
-
-Analyze the following Supreme Court judgment.
+You are a senior Supreme Court legal analyst. Your task is to produce a structured legal analysis of the judgment sections provided below.
 
 FACTS:
 {facts}
@@ -52,7 +50,14 @@ ANALYSIS:
 CONCLUSION:
 {conclusion}
 
-Return ONLY valid JSON. No conversational text, no markdown.
+Instructions:
+- legal_issues: List each distinct legal question the court was asked to decide. Each should be a single clear sentence starting with "Whether..."
+- court_reasoning: List the key steps in the court's reasoning in logical order. Each step should be a complete sentence.
+- holding: State the court's final decision in one or two sentences. Be precise.
+- legal_principles: List the legal rules, doctrines, or constitutional provisions the court relied upon.
+- plain_english_summary: Write 3-5 sentences explaining the case and outcome for a non-lawyer. Avoid jargon.
+
+Return valid JSON only. No markdown, no explanation outside the JSON.
 
 Format:
 {{
